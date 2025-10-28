@@ -221,8 +221,6 @@
       var onKeyDown = function(e){
         if (e.key === 'Enter'){
           finishInputAndValidate('enter');
-        } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Escape') {
-          showSuggestionsIfNeeded();
         }
       };
       var onClick = function(){ showSuggestionsIfNeeded(); };
