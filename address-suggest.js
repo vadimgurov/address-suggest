@@ -190,6 +190,7 @@
       function finishInputAndValidate(reason){
         var text = (input.value || '').trim();
         if (text.length < 3) {
+          log('callbackOnGeocodeValidate:', { ok:false, ll:null, text:text, reason: reason || 'short' });
           callbackOnGeocodeValidate({ ok:false, ll:null, text:text, reason: reason || 'short' });
           return;
         }
@@ -199,6 +200,7 @@
         geocodeOnce(text, function(llobj){
           geocodePending = false;
           if (!llobj){
+            log('callbackOnGeocodeValidate:', { ok:false, ll:null, text:text, reason: 'geocode_fail' });
             callbackOnGeocodeValidate({ ok:false, ll:null, text:text, reason: 'geocode_fail' });
             return;
           }
@@ -206,6 +208,7 @@
           lastGeocodedText = text;
   
           var ok = pointInFeatureCollection(llobj.lon, llobj.lat, delivery_fc);
+          log('callbackOnGeocodeValidate:', { ok: ok, ll: llobj, text: text, reason: reason || 'done' });
           callbackOnGeocodeValidate({ ok: ok, ll: llobj, text: text, reason: reason || 'done' });
         });
       }
