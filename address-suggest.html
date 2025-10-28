@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Address Suggest — Lazy Load</title>
+  <style>
+    #order-wrap { display:none; margin-top:12px; }
+    #addr-msg { color:#c00; font-weight:600; display:none; }
+  </style>
+</head>
+<body>
+
+<button id="open-order">Оформить заказ</button>
+
+<div id="order-wrap">
+  <label for="addr2">Адрес:</label><br>
+  <textarea id="addr2" placeholder="Введите адрес" autocomplete="off" cols="50" rows="3"></textarea>
+  <p id="addr-msg"></p>
+</div>
+
+<script>
+(function(){
+  var loaded = false;
+  var ctrl = null;
+
+  // Ваши параметры (ключи берём из window.ADDRESS_SUGGEST_CONFIG, FC — из window.DELIVERY_FC)
+  var LL  = '30.314,59.9386'; // lon,lat
+  var SPN = '2,1';            // dx,dy
+
+  function loadCSS(href){
+    return new Promise(function(res, rej){
+      var l = document.createElement('link');
+      l.rel = 'stylesheet'; l.href = href;
+      l.onload = res; l.onerror = rej;
+      document.head.appendChild(l);
+    });
+  }
+  function loadScript(src){
+    return new Promise(function(res, rej){
+      var s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  function initAddressSuggest(){
+    if (ctrl) return ctrl;
+    // callback после геокода/валидации
+    function onValidated(result){
+      // result: { ok, ll:{lon,lat}|null, text, reason }
+      var box = document.getElementById('addr-msg');
+      if (!box) return;
+      if (result.ok){
+        box.textContent = '';
+        box.style.display = 'none';
+        return;
+      }
+      var msg = '';
+      if (result.reason === 'short') {
+        msg = 'Слишком короткий адрес. Введите минимум 3 символа.';
+      } else if (result.reason === 'geocode_fail') {
+        msg = 'Адрес не распознан. Уточните формулировку.';
+      } else {
+        msg = 'Выбранный адрес вне зоны доставки.';
+      }
+      box.textContent = msg;
+      box.style.display = '';
+    }
+    // ключи читаем из window.ADDRESS_SUGGEST_CONFIG; FC — из window.DELIVERY_FC
+    // addressSuggest экспортируется из локального файла
+    ctrl = addressSuggest(
+      window.ADDRESS_SUGGEST_CONFIG.suggestKey,
+      window.ADDRESS_SUGGEST_CONFIG.geocodeKey,
+      LL,
+      SPN,
+      window.DELIVERY_FC,
+      'addr2',
+      /*debug*/ /(?:^|[?&])DEBUG(?:[&=]|$)/.test(window.location.search),
+      onValidated
+    );
+    return ctrl;
+  }
+
+  document.getElementById('open-order').addEventListener('click', function(){
+    document.getElementById('order-wrap').style.display = '';
+
+    if (loaded) { initAddressSuggest(); return; }
+    loaded = true;
+
+    Promise.resolve()
+      .then(function(){ return loadCSS('https://cdn.jsdelivr.net/npm/awesomplete@1.1.7/awesomplete.css'); })
+      .then(function(){ return loadScript('https://cdn.jsdelivr.net/npm/awesomplete@1.1.7/awesomplete.min.js'); })
+      .then(function(){ return loadScript('/config.local.js'); })
+      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@main/delivery-fc.js'); })
+      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@main/dist/address-suggest.min.js'); }) <!-- jsDelivr GitHub CDN -->
+      .then(function(){ initAddressSuggest(); })
+      .catch(function(e){ console.error('Address suggest loader error:', e); });
+  }, { once:false });
+})();
+</script>
+
+</body>
+</html>

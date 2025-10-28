@@ -1,0 +1,6 @@
+# Local config with API keys (do not commit)
+config.local.js
+
+
+# Dependencies
+/node_modules/
