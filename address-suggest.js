@@ -220,7 +220,6 @@
       var onSelect = function(){ finishInputAndValidate('select'); };
       var onKeyDown = function(e){
         if (e.key === 'Enter'){
-          e.preventDefault();
           finishInputAndValidate('enter');
         } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Escape') {
           showSuggestionsIfNeeded();
