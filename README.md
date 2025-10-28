@@ -47,3 +47,25 @@ Note: jsDelivr itself keys CDN cache by the path; query parameters are generally
 
 ### Build outputs
 - `dist/address-suggest.min.js` — minified library for CDN usage.
+
+## Automated release (tag + HTML update + push)
+
+Run one of:
+```bash
+npm run release:patch
+npm run release:minor
+npm run release:major
+```
+What happens:
+- Builds `dist/address-suggest.min.js`
+- Bumps `package.json` version (no tag yet)
+- Rewrites `address-suggest.html` jsDelivr URLs to `@v<version>` and appends `?v=<version>`
+- Commits `dist/`, `address-suggest.html`, `package.json` (and lockfile if present)
+- Creates git tag `v<version>` and pushes with tags
+
+Then you can use:
+```html
+<script src="https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@v<version>/dist/address-suggest.min.js"></script>
+```
+If нужно обновить CDN моментально на `@main`, используйте purge:
+`https://purge.jsdelivr.net/gh/vadimgurov/address-suggest@main/dist/address-suggest.min.js`.
