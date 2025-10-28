@@ -92,8 +92,8 @@
       .then(function(){ return loadCSS('https://cdn.jsdelivr.net/npm/awesomplete@1.1.7/awesomplete.css'); })
       .then(function(){ return loadScript('https://cdn.jsdelivr.net/npm/awesomplete@1.1.7/awesomplete.min.js'); })
       .then(function(){ return loadScript('./config.local.js').catch(function(){ return loadScript('./config.example.js'); }); })
-      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@main/delivery-fc.js'); })
-      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@main/dist/address-suggest.min.js?v=2025-10-28T16-51-45'); }) <!-- jsDelivr GitHub CDN -->
+      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@v2.0.0/delivery-fc.js'); })
+      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@v2.0.0/dist/address-suggest.min.js?v=2.0.0'); }) <!-- jsDelivr GitHub CDN -->
       .then(function(){ initAddressSuggest(); })
       .catch(function(e){ console.error('Address suggest loader error:', e); });
   }, { once:false });

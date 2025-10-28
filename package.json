@@ -1,13 +1,16 @@
 {
   "name": "address-suggest",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": false,
   "description": "Address suggest widget with Yandex APIs",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "release:patch": "node release.js patch",
+    "release:minor": "node release.js minor",
+    "release:major": "node release.js major"
   },
   "devDependencies": {
     "esbuild": "0.23.0"
