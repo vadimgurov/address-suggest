@@ -1,6 +1,6 @@
 {
   "name": "address-suggest",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": false,
   "description": "Address suggest widget with Yandex APIs",
   "license": "MIT",
