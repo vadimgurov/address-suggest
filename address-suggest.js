@@ -18,10 +18,33 @@
     }
   }(typeof self !== 'undefined' ? self : this, function(){
   
-    function addressSuggest(api_key_suggest, api_key_geocode, ll, spn, delivery_fc, input_field_id, debug, callbackOnGeocodeValidate){
-      var input = document.getElementById(input_field_id);
-      if (!input) throw new Error('addressSuggest: input element #' + input_field_id + ' not found');
+    // one-time CSS injector for awesomplete tweaks and close button
+    var _addrSuggestStylesInjected = false;
+    function injectAddressSuggestStyles(){
+      if (_addrSuggestStylesInjected) return;
+      try {
+        var css = ''+
+          '.awesomplete > ul, .awesomplete > ul > li{animation:none!important;transition:none!important;}' +
+          '.awesomplete__close{position:absolute;top:6px;right:6px;width:32px;height:32px;line-height:22px;border-radius:14px;border:3px solid rgba(0,0,0,0.15);background:#fff;color:#333;text-align:center;font-weight:bold;cursor:pointer;z-index:2;box-shadow:0 1px 3px rgba(0,0,0,0.1);}' +
+          '.awesomplete__close:active{transform:scale(0.98);}';
+        var st = document.createElement('style');
+        st.type = 'text/css';
+        st.appendChild(document.createTextNode(css));
+        (document.head || document.documentElement).appendChild(st);
+      } catch(_) {}
+      _addrSuggestStylesInjected = true;
+    }
+
+    function addressSuggest(api_key_suggest, api_key_geocode, ll, spn, delivery_fc, input_field_id, debug, maxItems, callbackOnGeocodeValidate){
+      var input = null;
+      if (typeof input_field_id === 'string') {
+        input = document.getElementById(input_field_id);
+      } else if (input_field_id && input_field_id.nodeType === 1) {
+        input = input_field_id;
+      }
+      if (!input) throw new Error('addressSuggest: input element not found');
       if (typeof Awesomplete === 'undefined') throw new Error('addressSuggest: Awesomplete is required');
+      injectAddressSuggestStyles();
   
       // state
       var selectedLL = null;
@@ -92,6 +115,7 @@
       var ac = new Awesomplete(input, {
         minChars: 0,
         autoFirst: false,
+        maxItems: maxItems,
         replace: function(sug){
           var v = sug.value;
           var label = (v && v.title && v.title.text) ? v.title.text : (sug.label || '');
@@ -111,6 +135,7 @@
             }
           } catch(_) {}
           this.input.value = label;
+          // try { onInput({ target: this.input }); } catch(_) {}
         },
         filter: function(){ return true; },
         sort: false,
@@ -128,6 +153,26 @@
           return { label: label, value: item };
         }
       });
+      // Close button logic for mobile usability
+      function ensureCloseBtn(){
+        if (!ac || !ac.ul) return null;
+        var existing = ac.ul.querySelector('.awesomplete__close');
+        if (existing) return existing;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'awesomplete__close';
+        btn.setAttribute('aria-label', 'Закрыть подсказки');
+        btn.textContent = '×';
+        btn.addEventListener('click', function(e){
+          try { ac.close(); } catch(_) {}
+          if (e.preventDefault) e.preventDefault();
+          if (e.stopPropagation) e.stopPropagation();
+          return false;
+        });
+        ac.ul.appendChild(btn);
+        return btn;
+      }
+
   
       // SUGGEST
       function fetchSuggest(q, done){
@@ -136,7 +181,7 @@
           + '&text='   + encodeURIComponent(q)
           + '&lang=ru_RU'
           + '&types='  + encodeURIComponent('geo,biz')
-          + '&results=8'
+          + '&results=' + encodeURIComponent(maxItems)
           + '&strict_bounds=1'
           + '&print_address=1'
           + '&attrs=uri'
@@ -190,8 +235,8 @@
       function finishInputAndValidate(reason){
         var text = (input.value || '').trim();
         if (text.length < 3) {
-          log('callbackOnGeocodeValidate:', { ok:false, ll:null, text:text, reason: reason || 'short' });
-          callbackOnGeocodeValidate({ ok:false, ll:null, text:text, reason: reason || 'short' });
+          log('callbackOnGeocodeValidate:', { ok:false, ll:null, text:text, reason: 'short' });
+          callbackOnGeocodeValidate({ ok:false, ll:null, text:text, reason: 'short' });
           return;
         }
         if (geocodePending || text === lastGeocodedText) return;
@@ -235,6 +280,9 @@
       input.addEventListener('keydown', onKeyDown);
       input.addEventListener('click', onClick);
       input.addEventListener('blur', onBlur);
+
+      // Manage close button on open/close
+      input.addEventListener('awesomplete-open', function(){ try { ensureCloseBtn(); } catch(_){} });
   
       // public controller
       return {

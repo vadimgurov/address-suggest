@@ -1,6 +1,6 @@
 # Local config with API keys (do not commit)
 config.local.js
-
+tilda.html
 
 # Dependencies
 /node_modules/
