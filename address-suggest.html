@@ -6,10 +6,6 @@
   <style>
     #order-wrap { display:none; margin-top:12px; }
     #addr-msg { color:#c00; font-weight:600; display:none; }
-    /* Awesomplete: disable animations */
-    .awesomplete > ul,
-    .awesomplete > ul > li { animation: none !important; transition: none !important; }
-    .awesomplete > ul { opacity: 1 !important; transform: none !important; }
   </style>
 </head>
 <body>
@@ -81,6 +77,7 @@
       window.DELIVERY_FC,
       'addr2',
       /*debug*/ /(?:^|[?&])DEBUG(?:[&=]|$)/.test(window.location.search),
+      10,
       onValidated
     );
     return ctrl;
@@ -96,8 +93,8 @@
       .then(function(){ return loadCSS('https://cdn.jsdelivr.net/npm/awesomplete@1.1.7/awesomplete.css'); })
       .then(function(){ return loadScript('https://cdn.jsdelivr.net/npm/awesomplete@1.1.7/awesomplete.min.js'); })
       .then(function(){ return loadScript('./config.local.js').catch(function(){ return loadScript('./config.example.js'); }); })
-      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@v2.1.4/delivery-fc.js'); })
-      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@v2.1.4/dist/address-suggest.min.js?v=2.1.4'); }) <!-- jsDelivr GitHub CDN -->
+      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@v2.1.5/delivery-fc.js'); })
+      .then(function(){ return loadScript('https://cdn.jsdelivr.net/gh/vadimgurov/address-suggest@v2.1.5/dist/address-suggest.min.js?v=2.1.5'); }) <!-- jsDelivr GitHub CDN -->
       .then(function(){ initAddressSuggest(); })
       .catch(function(e){ console.error('Address suggest loader error:', e); });
   }, { once:false });
