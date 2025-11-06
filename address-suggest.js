@@ -44,6 +44,14 @@
       }
       if (!input) throw new Error('addressSuggest: input element not found');
       if (typeof Awesomplete === 'undefined') throw new Error('addressSuggest: Awesomplete is required');
+      if (!ll || (typeof ll === 'string' && ll.trim() === '')) throw new Error('addressSuggest: ll is required');
+      // Precompute fallback LL from provided center
+      var fallbackLL = null; try {
+        var _sp = (ll || '').split(',');
+        var _lon = parseFloat(_sp[0]);
+        var _lat = parseFloat(_sp[1]);
+        if (!isNaN(_lon) && !isNaN(_lat)) fallbackLL = { lon:_lon, lat:_lat };
+      } catch(_) {}
       injectAddressSuggestStyles();
   
       // state
@@ -213,7 +221,7 @@
             if (!isNaN(lon) && !isNaN(lat)) { done({lon:lon, lat:lat}); return; }
           }catch(e){}
           done(null);
-        }).catch(function(err){ log('geocode error', err); done(null); });
+        }).catch(function(err){ log('geocode error', err); done(fallbackLL); });
       }
   
       // Show/evaluate suggestions if needed

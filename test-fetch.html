@@ -1,0 +1,16 @@
+<script>
+    fetch("http://crm-test.dosflores.ru/api/tilda/v2/paymentlink",
+    {
+      mode: 'cors',
+      credentials: 'omit',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'Accept': 'text/plain'
+      },
+      cache: 'no-store',      // устранить кеш-странности на iOS
+      redirect: 'follow'      // по умолчанию так, но явно не помешает
+    }
+    ).then(function() {
+        console.log(arguments);
+    }).catch(function(err){ console.log("error", err); });
+</script>
